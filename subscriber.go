@@ -2,19 +2,18 @@ package main
 
 import "sync"
 
-// Subscriber is a convenience return type for the Subscribe method.
-type Subscriber interface {
+type Consumer interface {
 	Consume(Event)
 	Topics() []string
 }
 
-type SubsMap map[string][]Subscriber
+type SubsMap map[string][]Consumer
 
 func newEmptySubsMap() SubsMap {
-	return make(map[string][]Subscriber, 0)
+	return make(map[string][]Consumer, 0)
 }
 
-func (s SubsMap) Add(sub Subscriber) {
+func (s SubsMap) Add(sub Consumer) {
 
 	if len(sub.Topics()) == 0 {
 		return
@@ -24,7 +23,7 @@ func (s SubsMap) Add(sub Subscriber) {
 
 		_, ok := s[topic]
 		if !ok {
-			s[topic] = []Subscriber{sub}
+			s[topic] = []Consumer{sub}
 
 			continue
 		}
@@ -33,7 +32,7 @@ func (s SubsMap) Add(sub Subscriber) {
 	}
 }
 
-func (s SubsMap) Find(topic string) ([]Subscriber, bool) {
+func (s SubsMap) Find(topic string) ([]Consumer, bool) {
 
 	arr, ok := s[topic]
 	if !ok {
@@ -62,7 +61,7 @@ func NewSubscribeImpl() subscribeImpl {
 	}
 }
 
-func (s *subscribeImpl) Subscribe(sub Subscriber) {
+func (s *subscribeImpl) Subscribe(sub Consumer) {
 
 	s.m.Lock()
 	defer s.m.Unlock()
