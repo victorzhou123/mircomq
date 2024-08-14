@@ -4,13 +4,21 @@ import "sync"
 
 // Subscriber is a convenience return type for the Subscribe method.
 type Subscriber interface {
-	Consume(Event) error
+	Consume(Event)
 	Topics() []string
 }
 
 type SubsMap map[string][]Subscriber
 
+func newEmptySubsMap() SubsMap {
+	return make(map[string][]Subscriber, 0)
+}
+
 func (s SubsMap) Add(sub Subscriber) {
+
+	if len(sub.Topics()) == 0 {
+		return
+	}
 
 	for _, topic := range sub.Topics() {
 
@@ -48,8 +56,10 @@ type subscribeImpl struct {
 	subs SubsMap
 }
 
-func NewSubscribe() subscribeImpl {
-	return subscribeImpl{}
+func NewSubscribeImpl() subscribeImpl {
+	return subscribeImpl{
+		subs: newEmptySubsMap(),
+	}
 }
 
 func (s *subscribeImpl) Subscribe(sub Subscriber) {
