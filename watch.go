@@ -4,11 +4,11 @@ import "time"
 
 type watcher struct {
 	mq        MQ
-	subscribe SubscribeImpl
+	subscribe Distributer
 	period    time.Duration
 }
 
-func NewWatcher(mq MQ, sub SubscribeImpl) watcher {
+func NewWatcher(mq MQ, sub Distributer) watcher {
 	return watcher{
 		mq:        mq,
 		subscribe: sub,
@@ -25,7 +25,7 @@ func (w *watcher) Watch() {
 
 		if w.mq.HasMsg() {
 			msg := w.mq.Pop()
-			w.subscribe.Handle(msg)
+			w.subscribe.Distribute(msg)
 		}
 	}
 }

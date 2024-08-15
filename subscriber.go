@@ -46,8 +46,8 @@ func (s SubsMap) Find(topic string) ([]Consumer, bool) {
 	return arr, true
 }
 
-type SubscribeImpl interface {
-	Handle(e Event)
+type Distributer interface {
+	Distribute(e Event)
 }
 
 type subscribeImpl struct {
@@ -69,7 +69,7 @@ func (s *subscribeImpl) Subscribe(sub Consumer) {
 	s.subs.Add(sub)
 }
 
-func (s *subscribeImpl) Handle(e Event) {
+func (s *subscribeImpl) Distribute(e Event) {
 
 	subs, ok := s.subs.Find(e.Topic())
 	if !ok {

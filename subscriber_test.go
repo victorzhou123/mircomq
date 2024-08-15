@@ -138,7 +138,7 @@ func Test_subscribeImpl_Handle(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewSubscribeImpl()
 			s.Subscribe(tt.args.c)
-			s.Handle(tt.args.e)
+			s.Distribute(tt.args.e)
 
 			got := buf.String()
 
