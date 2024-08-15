@@ -22,14 +22,16 @@ func NewWatcher(mq MQ, sub consume.Distributer) watcher {
 
 func (w *watcher) Watch() {
 
-	timer := time.NewTimer(w.period)
+	ticker := time.NewTicker(w.period)
+	defer ticker.Stop()
 
 	for {
-		<-timer.C
-
-		if w.mq.HasMsg() {
-			msg := w.mq.Pop()
-			w.subscribe.Distribute(msg)
+		select {
+		case <-ticker.C:
+			if w.mq.HasMsg() {
+				msg := w.mq.Pop()
+				w.subscribe.Distribute(msg)
+			}
 		}
 	}
 }
