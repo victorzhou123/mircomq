@@ -1,3 +1,3 @@
-module github.com/victorzhou123/micromq
+module github.com/victorzhou123/simplemq
 
 go 1.21
