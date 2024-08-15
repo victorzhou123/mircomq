@@ -1,14 +1,18 @@
-package main
+package mq
 
-import "time"
+import (
+	"time"
+
+	"github.com/victorzhou123/simplemq/consume"
+)
 
 type watcher struct {
 	mq        MQ
-	subscribe Distributer
+	subscribe consume.Distributer
 	period    time.Duration
 }
 
-func NewWatcher(mq MQ, sub Distributer) watcher {
+func NewWatcher(mq MQ, sub consume.Distributer) watcher {
 	return watcher{
 		mq:        mq,
 		subscribe: sub,

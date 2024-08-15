@@ -1,9 +1,13 @@
-package main
+package consume
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/victorzhou123/simplemq/event"
+)
 
 type Consumer interface {
-	Consume(Event)
+	Consume(event.Event)
 	Topics() []string
 }
 
@@ -47,7 +51,7 @@ func (s SubsMap) Find(topic string) ([]Consumer, bool) {
 }
 
 type Distributer interface {
-	Distribute(e Event)
+	Distribute(e event.Event)
 }
 
 type subscribeImpl struct {
@@ -69,7 +73,7 @@ func (s *subscribeImpl) Subscribe(sub Consumer) {
 	s.subs.Add(sub)
 }
 
-func (s *subscribeImpl) Distribute(e Event) {
+func (s *subscribeImpl) Distribute(e event.Event) {
 
 	subs, ok := s.subs.Find(e.Topic())
 	if !ok {

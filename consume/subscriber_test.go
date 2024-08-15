@@ -1,8 +1,10 @@
-package main
+package consume
 
 import (
 	"bytes"
 	"testing"
+
+	"github.com/victorzhou123/simplemq/event"
 )
 
 const MsgBodyThisIsMessageBody = "this is message body"
@@ -11,12 +13,12 @@ var (
 	buf                                  = &bytes.Buffer{}
 	noTopicConsumer, withTopicConsumer   Consumer
 	noTopicConsumer2, withTopicConsumer2 Consumer
-	missTopicMsg, hitTopicMsg            Message
+	missTopicMsg, hitTopicMsg            event.Message
 )
 
 type cs1 struct{}
 
-func (s *cs1) Consume(e Event) {
+func (s *cs1) Consume(e event.Event) {
 	e.Message()
 }
 
@@ -26,7 +28,7 @@ func (s *cs1) Topics() []string {
 
 type cs2 struct{}
 
-func (s *cs2) Consume(e Event) {
+func (s *cs2) Consume(e event.Event) {
 	e.Message()
 }
 
@@ -42,16 +44,18 @@ func init() {
 	// Test_subscribeImpl_Handle
 	noTopicConsumer2 = &cs3{buf}
 	withTopicConsumer2 = &cs4{buf}
-	missTopicMsg = Message{
-		key:    "topic_not_hit",
+
+	missTopicMsg = event.Message{
 		Header: make(map[string]string),
 		Body:   []byte{},
 	}
-	hitTopicMsg = Message{
-		key:    "topic4",
+	missTopicMsg.SetMessageKey("topic_not_hit")
+
+	hitTopicMsg = event.Message{
 		Header: make(map[string]string),
 		Body:   []byte(MsgBodyThisIsMessageBody),
 	}
+	hitTopicMsg.SetMessageKey("topic4")
 }
 
 func Test_subscribeImpl_Subscribe(t *testing.T) {
@@ -87,7 +91,7 @@ type cs3 struct {
 	buffer *bytes.Buffer
 }
 
-func (s *cs3) Consume(e Event) {
+func (s *cs3) Consume(e event.Event) {
 	s.buffer.Write(e.Message().Body)
 }
 
@@ -99,7 +103,7 @@ type cs4 struct {
 	buffer *bytes.Buffer
 }
 
-func (s *cs4) Consume(e Event) {
+func (s *cs4) Consume(e event.Event) {
 	s.buffer.Write(e.Message().Body)
 }
 
@@ -110,7 +114,7 @@ func (s *cs4) Topics() []string {
 func Test_subscribeImpl_Handle(t *testing.T) {
 	type args struct {
 		c Consumer
-		e Event
+		e event.Event
 	}
 	tests := []struct {
 		name string

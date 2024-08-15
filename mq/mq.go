@@ -1,12 +1,14 @@
-package main
+package mq
 
 import (
 	"sync"
+
+	"github.com/victorzhou123/simplemq/event"
 )
 
 type MQ interface {
-	Push(*Message)
-	Pop() Message
+	Push(*event.Message)
+	Pop() event.Message
 	HasMsg() bool
 }
 
@@ -17,17 +19,17 @@ type mq struct {
 func NewMQ() MQ {
 	return &mq{
 		queue: queue{
-			queue: make([]*Message, 0),
+			queue: make([]*event.Message, 0),
 		},
 	}
 }
 
 type queue struct {
 	m     sync.Mutex
-	queue []*Message
+	queue []*event.Message
 }
 
-func (q *queue) Push(msg *Message) {
+func (q *queue) Push(msg *event.Message) {
 
 	q.m.Lock()
 	defer q.m.Unlock()
@@ -35,7 +37,7 @@ func (q *queue) Push(msg *Message) {
 	q.queue = append(q.queue, msg)
 }
 
-func (q *queue) Pop() Message {
+func (q *queue) Pop() event.Message {
 
 	q.m.Lock()
 	defer q.m.Unlock()
@@ -50,7 +52,7 @@ func (q *queue) HasMsg() bool {
 	return q.front() != nil
 }
 
-func (q *queue) front() *Message {
+func (q *queue) front() *event.Message {
 	if len(q.queue) > 0 {
 		return q.queue[0]
 	}

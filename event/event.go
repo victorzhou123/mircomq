@@ -1,4 +1,4 @@
-package main
+package event
 
 // Event is given to a subscription handler for processing.
 type Event interface {
