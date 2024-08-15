@@ -19,7 +19,7 @@ func newEmptySubsMap() SubsMap {
 
 func (s SubsMap) Add(sub Consumer) {
 
-	if len(sub.Topics()) == 0 {
+	if sub == nil || len(sub.Topics()) == 0 {
 		return
 	}
 
@@ -51,21 +51,22 @@ func (s SubsMap) Find(topic string) ([]Consumer, bool) {
 }
 
 type Distributer interface {
-	Distribute(e event.Event)
+	Distribute(event.Event)
+	Subscribe(Consumer)
 }
 
-type subscribeImpl struct {
+type distributerImpl struct {
 	m    sync.Mutex
 	subs SubsMap
 }
 
-func NewSubscribeImpl() subscribeImpl {
-	return subscribeImpl{
+func NewDistributerImpl() distributerImpl {
+	return distributerImpl{
 		subs: newEmptySubsMap(),
 	}
 }
 
-func (s *subscribeImpl) Subscribe(sub Consumer) {
+func (s *distributerImpl) Subscribe(sub Consumer) {
 
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -73,7 +74,7 @@ func (s *subscribeImpl) Subscribe(sub Consumer) {
 	s.subs.Add(sub)
 }
 
-func (s *subscribeImpl) Distribute(e event.Event) {
+func (s *distributerImpl) Distribute(e event.Event) {
 
 	subs, ok := s.subs.Find(e.Topic())
 	if !ok {
