@@ -39,6 +39,10 @@ func (q *queue) Push(msg *event.Message) {
 
 func (q *queue) Pop() event.Message {
 
+	if !q.HasMsg() {
+		return event.Message{}
+	}
+
 	q.m.Lock()
 	defer q.m.Unlock()
 
