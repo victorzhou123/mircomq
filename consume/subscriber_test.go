@@ -10,10 +10,10 @@ import (
 const MsgBodyThisIsMessageBody = "this is message body"
 
 var (
-	buf                                  = &bytes.Buffer{}
-	noTopicConsumer, withTopicConsumer   Consumer
-	noTopicConsumer2, withTopicConsumer2 Consumer
-	missTopicMsg, hitTopicMsg            event.Message
+	buf                                        = &bytes.Buffer{}
+	noTopicConsumer, withTopicConsumer         Consumer
+	noTopicConsumer2, withTopicConsumer2       Consumer
+	missTopicMsg, hitTopicMsg, noSubscriberMsg event.Message
 )
 
 type cs1 struct{}
@@ -56,6 +56,12 @@ func init() {
 		Body:   []byte(MsgBodyThisIsMessageBody),
 	}
 	hitTopicMsg.SetMessageKey("topic4")
+
+	noSubscriberMsg = event.Message{
+		Header: make(map[string]string),
+		Body:   []byte("no sense"),
+	}
+	noSubscriberMsg.SetMessageKey("topic4")
 }
 
 func Test_subscribeImpl_Subscribe(t *testing.T) {
@@ -81,7 +87,7 @@ func Test_subscribeImpl_Subscribe(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewSubscribeImpl()
+			s := NewDistributerImpl()
 			s.Subscribe(tt.args.sub)
 		})
 	}
@@ -130,6 +136,14 @@ func Test_subscribeImpl_Handle(t *testing.T) {
 			"",
 		},
 		{
+			"no subscriber",
+			args{
+				nil,
+				noSubscriberMsg,
+			},
+			"",
+		},
+		{
 			"hit topic",
 			args{
 				withTopicConsumer2,
@@ -140,9 +154,9 @@ func Test_subscribeImpl_Handle(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewSubscribeImpl()
-			s.Subscribe(tt.args.c)
-			s.Distribute(tt.args.e)
+			distributer := NewDistributerImpl()
+			distributer.Subscribe(tt.args.c)
+			distributer.Distribute(tt.args.e)
 
 			got := buf.String()
 
