@@ -35,10 +35,13 @@ func (c *client) Push(msg *event.Message) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.expire)
 	defer cancel()
 
-	c.mqClient.Push(ctx, &pb.Message{
+	_, err := c.mqClient.Push(ctx, &pb.Message{
 		Key:  msg.MessageKey(),
 		Body: msg.Body,
 	})
+	if err != nil {
+		log.Fatalf("push error: %s", err.Error())
+	}
 }
 
 func (c *client) Pop() event.Message {
