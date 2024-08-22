@@ -60,8 +60,8 @@ type distributerImpl struct {
 	subs SubsMap
 }
 
-func NewDistributerImpl() distributerImpl {
-	return distributerImpl{
+func NewDistributerImpl() Distributer {
+	return &distributerImpl{
 		subs: newEmptySubsMap(),
 	}
 }
