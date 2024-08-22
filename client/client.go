@@ -19,7 +19,7 @@ type client struct {
 	mqClient pb.MqClient
 }
 
-func NewClient(addr string) internal.MQ {
+func NewClient(addr string, t time.Duration) internal.MQ {
 
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -28,7 +28,7 @@ func NewClient(addr string) internal.MQ {
 
 	// TODO close conn
 
-	return &client{mqClient: pb.NewMqClient(conn)}
+	return &client{mqClient: pb.NewMqClient(conn), expire: t}
 }
 
 func (c *client) Push(msg *event.Message) {
