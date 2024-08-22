@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto"; 
+
+option go_package = "github.com/victorzhou123/simplemq/event/message";
+
+package message;
+
+service mq {
+    rpc pop(google.protobuf.Empty) returns (message) {}
+    rpc push(message) returns (google.protobuf.Empty) {}
+    rpc hasMsg(google.protobuf.Empty) returns (boolMsg) {}
+}
+
+message message {
+    string key = 1;
+    bytes body = 2;
+}
+
+message boolMsg {
+    bool val = 1;
+}

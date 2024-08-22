@@ -1,4 +1,4 @@
-package mq
+package internal
 
 import (
 	"sync"
