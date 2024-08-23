@@ -14,21 +14,30 @@ import (
 	"github.com/victorzhou123/simplemq/internal"
 )
 
+type Client interface {
+	internal.MQ
+	Close()
+}
+
 type client struct {
+	conn *grpc.ClientConn
+
 	expire   time.Duration
 	mqClient pb.MqClient
 }
 
-func NewClient(addr string, t time.Duration) internal.MQ {
+func NewClient(addr string, t time.Duration) (Client, error) {
 
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		return nil, err
 	}
 
-	// TODO close conn
-
-	return &client{mqClient: pb.NewMqClient(conn), expire: t}
+	return &client{
+		conn:     conn,
+		mqClient: pb.NewMqClient(conn),
+		expire:   t,
+	}, nil
 }
 
 func (c *client) Push(msg *event.Message) {
@@ -73,4 +82,8 @@ func (c *client) HasMsg() bool {
 	}
 
 	return bMsg.Val
+}
+
+func (c *client) Close() {
+	_ = c.conn.Close()
 }
